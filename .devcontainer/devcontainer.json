@@ -14,7 +14,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pip install dotbot flake8 ipython",
+	"postCreateCommand": "pip install dotbot flake8 ipython && pip install -r requirements.txt",
 
 	// Configure tool-specific properties.
 	"customizations": {

@@ -12,3 +12,8 @@ flake8: clean
 	@flake8 . --count --max-complexity=10 --max-line-length=200 --ignore=F401,W504 --statistics --show-source
 
 lint: pylint flake8
+
+test: clean
+	@pytest -c pytest.ini
+
+check: lint test
