@@ -1,0 +1,7 @@
+logging:
+  loggers:
+    tmp:
+      handlers: [console, rotate]
+    sqlalchemy:
+        level: INFO
+        handlers: [console]
