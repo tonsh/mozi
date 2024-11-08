@@ -147,9 +147,9 @@ class TestLoggerItem(TestCase):
         assert logger.error_file == '/tmp/logs/custom/app/log_error.log'
 
         # relative path
-        logger = LoggerItem('app.log', log_path='tmp/logs/../')
-        assert logger.log_file == f'{os.getcwd()}/tmp/app/log.log'
-        assert logger.error_file == f'{os.getcwd()}/tmp/app/log_error.log'
+        logger = LoggerItem('app.log', log_path='data/tests/tmp/logs/../')
+        assert logger.log_file == f'{os.getcwd()}/data/tests/tmp/app/log.log'
+        assert logger.error_file == f'{os.getcwd()}/data/tests/tmp/app/log_error.log'
 
         # absolute path
         logger = LoggerItem('app.log', log_path='/tmp/logs/app.log')
