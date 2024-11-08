@@ -1,5 +1,9 @@
 .PHONY: lint
 
+install:
+	@pip install -r requirements.txt
+	@pip install -e .
+
 clean:
 	@find . -name "*.pyc" -exec rm -f {} +
 	@find . -name "__pycache__" -exec rm -rf {} +

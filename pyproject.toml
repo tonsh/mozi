@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]  # 构建项目所需的工具
+build-backend = "setuptools.build_meta"  # 使用 setuptools 作为构建后端
+
+[project]
+name = "mozi-utils"
+version = "0.1.0"
+description = "Mozi utils"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{name = "tonsh", email = "tonshlee@gmail.com"}]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+]
+
+[tool.setuptools]
+packages = ["mozi"]
+
+[project.optional-dependencies]
+dev = ["pytest", "flake8", "pylint"]
+docs = ["sphinx"]
+
+[project.urls]
+"Bug Tracker" = "https://github.com/tonsh/mozi-utils/issues"
+"Source Code" = "https://github.com/tonsh/mozi-utils"
