@@ -6,7 +6,7 @@ import logging.config
 import os
 from typing import List, Optional, Union
 
-from . import FilePath, Path, ensure_dir, get_config, uuid
+from .utils import FilePath, Path, ensure_dir, get_config, uuid
 
 # custom logging level type
 Level = int

@@ -2,9 +2,9 @@ import os
 from unittest import TestCase
 import pytest
 from mozi.utils import sort_list
-from mozi.utils.logger import (
+from mozi.logger import (
     DEFAULT_FORMAT, DEFAULT_LOG_DIR, MAX_FILE_SIZE, Formatter, HandlerEnum, LoggerConfig,
-    LoggerItem, LoggerLoader, RotateConfig, get_logger,
+    LoggerItem, LoggerLoader, RotateConfig, get_logger
 )
 
 
