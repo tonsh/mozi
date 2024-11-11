@@ -1,4 +1,4 @@
-<h1 align="center">mozi-utils</h1>
+<h1 align="center">mozi</h1>
 
 <h4 align="center"><em>A repository of essential tools and functions that can be used across various projects and applications..</em></h4>
 
