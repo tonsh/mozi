@@ -48,6 +48,10 @@ def ensure_dir(directory: Path) -> Path:
     return directory
 
 
+def now(timezone: str = "Asia/Shanghai"):
+    return datetime.now(tz=pytz.timezone(timezone))
+
+
 def get_timestamp():
     return int(time.time() * 1000)
 
