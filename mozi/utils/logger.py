@@ -200,9 +200,10 @@ class LoggerConfig:
 
 class LoggerLoader:
 
-    def __init__(self, yml_files: List[FilePath]):
+    def __init__(self, yml_files: List[FilePath], log_path: Optional[Path] = None):
         self.yml_files = yml_files
         self.config: dict = get_config(self.yml_files, 'logging')
+        self.log_path = log_path
 
     def load(self) -> LoggerConfig:
         config = copy.deepcopy(self.config)
@@ -211,7 +212,7 @@ class LoggerLoader:
             raise ValueError("No logging configuration found")
 
         loggers = []
-        log_path = config.get('log_path')
+        log_path = config.get('log_path') or self.log_path
         for name, cnf in config['loggers'].items():
             loggers.append(LoggerItem.load(name, cnf, log_path))
 

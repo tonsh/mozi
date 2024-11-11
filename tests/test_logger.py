@@ -452,3 +452,23 @@ class TestLoggerLoader(TestCase):
 
         logger = get_logger('sqlalchemy')
         assert len(logger.handlers) == 3
+
+    def test_log_path(self):
+        confs = [
+            f'{self.config_path}/config.yml',
+            f'{self.config_path}/tmp.yml',
+        ]
+        config = LoggerLoader(confs).load()
+        for logger in config.loggers:
+            if logger.name == 'tmp':
+                assert logger.log_path == 'data/tests/logs'
+            elif logger.name == 'test':
+                assert logger.log_path == 'data/tests/logs'
+            elif logger.name == 'sqlalchemy':
+                assert logger.log_path == 'data/tests/logs/sqlalchemy'
+
+        # redefine default log path
+        log_path = 'data/tests/logs/global'
+        config = LoggerLoader([f'{self.config_path}/tmp.yml'], log_path=log_path).load()
+        for logger in config.loggers:
+            assert logger.log_path == log_path
