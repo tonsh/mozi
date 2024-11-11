@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["mozi", "mozi.utils"]
+packages = ["mozi", "mozi.utils", "mozi.logger"]
 
 [project.optional-dependencies]
 dev = ["pytest", "flake8", "pylint"]

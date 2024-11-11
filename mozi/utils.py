@@ -4,7 +4,7 @@ import hashlib
 import hmac
 import os
 import time
-from typing import Iterator, List, Optional
+from typing import List, Optional
 import pytz
 import yaml
 
