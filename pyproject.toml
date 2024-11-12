@@ -17,6 +17,7 @@ classifiers = [
 dependencies = [
     "PyYAML>=6.0.2",
     "pytz>=2024.2",
+    "sqlmodel>=0.0.22",
 ]
 
 [tool.setuptools]
