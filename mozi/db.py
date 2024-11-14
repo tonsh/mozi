@@ -80,7 +80,7 @@ class DBMixin(Generic[T]):
     @classmethod
     def _all(cls, session: Session, statement: Statement) -> List[T]:
         result = list(session.exec(statement).all())
-        return result or result[0]
+        return result or []
 
     @classmethod
     def _filter_by(cls, only_count: bool = False, **kwargs) -> Statement:
@@ -105,6 +105,10 @@ class DBMixin(Generic[T]):
         return self._delete(session)
 
     @classmethod
+    def create(cls, session: Session, **kwargs) -> T:
+        return cls(**kwargs)._upsert(session)
+
+    @classmethod
     def get_by_id(cls, session: Session, id: int) -> Optional[T]:
         """Get a record by its ID."""
         return session.get(cls, id)  # type: ignore
@@ -114,6 +118,16 @@ class DBMixin(Generic[T]):
         """ 使用 with_for_update 方法，可以确保在查询记录时锁定这些记录，以防止其他事务修改它们。"""
         statement = cls._filter_by(id=id).with_for_update()
         return session.exec(statement).one_or_none()
+
+    @classmethod
+    def get(cls, session: Session, **kwargs) -> Optional[T]:
+        statement = cls._filter_by(**kwargs)
+        result = cls._all(session, statement)
+
+        if len(result) > 1:
+            raise ValueError(f'Multiple records found for {cls.__name__} with {kwargs}')
+
+        return result[0] if result else None
 
     @classmethod
     def gets_by_ids(cls, session: Session, ids: List[int]) -> List[T]:

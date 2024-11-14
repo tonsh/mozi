@@ -66,6 +66,13 @@ class TestUser(DBTestCase):
 
     def test_create(self):
         with Session(self.engine) as session:
+            User.create(session, name='foo')
+            user = User.get_by_id(session, id=1)
+            assert user.id == 1
+            assert user.name == 'foo'
+
+    def test_new_user(self):
+        with Session(self.engine) as session:
             foo = User(name="foo").update(session)
 
             assert foo.id == 1
@@ -122,6 +129,21 @@ class TestUser(DBTestCase):
         with Session(self.engine) as session:
             user = User(name='foo').update(session)
             assert User.get_for_update(session, 1) == user
+
+    def test_get(self):
+        with Session(self.engine) as session:
+            assert User.get(session, name='foo') is None
+
+            user = User.create(session, name='foo')
+            assert user.id == 1
+            result = User.get(session, name='foo')
+            assert result is not None
+            assert result.id == 1
+
+            User.create(session, name='bar')
+            assert User.count(session) == 2
+            with self.assertRaisesRegex(ValueError, 'Multiple records found for User with'):
+                User.get(session, is_abled=True)
 
     def test_gets_by_ids(self):
         with Session(self.engine) as session:
