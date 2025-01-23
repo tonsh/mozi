@@ -10,6 +10,7 @@ class User(BaseModel, table=True):
     name: str = Field(unique=True)
     uuid: Optional[str] = Field(unique=True, default=None)
     email: Optional[str] = Field(default=None)
+    age: Optional[int] = Field(default=None)
     is_abled: bool = Field(default=True)
 
     __immutable_fields__ = {'name'}

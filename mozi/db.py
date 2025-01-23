@@ -1,6 +1,6 @@
 # pylint: disable=redefined-builtin
 from datetime import datetime
-from typing import Any, Generic, List, Optional, TypeVar, Union
+from typing import Any, Callable, Generic, List, Optional, TypeVar, Union
 from sqlalchemy import Engine
 from sqlmodel import SQLModel, Field, Session, func, select
 from sqlmodel.sql.expression import Select, SelectOfScalar
@@ -83,7 +83,12 @@ class DBMixin(Generic[T]):
         return result or []
 
     @classmethod
-    def _filter_by(cls, only_count: bool = False, **kwargs) -> Statement:
+    def _filter_by(
+        cls,
+        only_count: bool = False,
+        filter_factory: Optional[Callable] = None,
+        **kwargs
+    ) -> Statement:
         """Filter records by given criteria."""
         if only_count:
             statement = select(func.count(cls.id))  # pylint: disable=not-callable  # type: ignore
@@ -93,6 +98,10 @@ class DBMixin(Generic[T]):
         for key, value in kwargs.items():
             if hasattr(cls, key):
                 statement = statement.where(getattr(cls, key) == value)
+
+        if filter_factory:
+            statement = filter_factory(statement)
+
         return statement
 
     def update(self, session: Session, **kwargs) -> T:
@@ -120,8 +129,13 @@ class DBMixin(Generic[T]):
         return session.exec(statement).one_or_none()
 
     @classmethod
-    def get(cls, session: Session, **kwargs) -> Optional[T]:
-        statement = cls._filter_by(**kwargs)
+    def get(
+        cls,
+        session: Session,
+        filter_factory: Optional[Callable] = None,
+        **kwargs
+    ) -> Optional[T]:
+        statement = cls._filter_by(filter_factory=filter_factory, **kwargs)
         result = cls._all(session, statement)
 
         if len(result) > 1:
@@ -138,15 +152,23 @@ class DBMixin(Generic[T]):
         return cls._all(session, statement)
 
     @classmethod
-    def count(cls, session: Session, **kwargs) -> int:
-        statement = cls._filter_by(only_count=True, **kwargs)
+    def count(cls, session: Session, filter_factory: Optional[Callable] = None, **kwargs) -> int:
+        statement = cls._filter_by(only_count=True, filter_factory=filter_factory, **kwargs)
         return session.exec(statement).first() or 0
 
     @classmethod
-    def gets(cls, session: Session, start: int = 0, limit: int = 20, order_by: Optional[str] = None, **kwargs) -> tuple[int, List[T]]:  # pylint: disable=line-too-long
-        total = cls.count(session, **kwargs)
+    def gets(
+        cls,
+        session: Session,
+        start: int = 0,
+        limit: int = 20,
+        order_by: Optional[str] = None,
+        filter_factory: Optional[Callable] = None,
+        **kwargs
+    ) -> tuple[int, List[T]]:
+        total = cls.count(session, filter_factory=filter_factory, **kwargs)
 
-        statement = cls._filter_by(**kwargs)
+        statement = cls._filter_by(filter_factory=filter_factory, **kwargs)
         if order_by:
             if order_by.startswith('-'):
                 order_by = getattr(cls, order_by[1:]).desc()

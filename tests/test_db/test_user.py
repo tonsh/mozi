@@ -160,9 +160,9 @@ class TestUser(DBTestCase):
         with Session(self.engine) as session:
             assert User.count(session) == 0
 
-            User(name='foo').update(session)
-            User(name='bar').update(session)
-            User(name='baz').update(session)
+            User(name='foo', age=13).update(session)
+            User(name='bar', age=32).update(session)
+            User(name='baz', age=None).update(session)
 
             count, users = User.gets(session, tart=0, limit=20, order_by='name')
             assert count == 3
@@ -182,3 +182,15 @@ class TestUser(DBTestCase):
             count, users = User.gets(session, start=1, limit=2, order_by='-name')
             assert count == 3
             assert [u.name for u in users] == ['baz', 'bar']
+
+            # age >= 20 start=0, limit=2
+            count, users = User.gets(
+                session,
+                start=0,
+                limit=2,
+                order_by='-name',
+                filter_factory=lambda s: s.where(
+                    User.age >= 20
+                )
+            )
+            assert count == 1
