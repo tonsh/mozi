@@ -194,3 +194,28 @@ class TestUser(DBTestCase):
                 )
             )
             assert count == 1
+
+    def test_all(self):
+        with Session(self.engine) as session:
+            assert User.count(session) == 0
+
+            User(name='foo', age=13).update(session)
+            User(name='bar', age=32).update(session)
+            User(name='baz', age=None).update(session)
+
+            users = User.all(session, order_by='name')
+            assert [u.name for u in users] == ['bar', 'baz', 'foo']
+
+            # order by name desc
+            users = User.all(session, order_by='-name')
+            assert [u.name for u in users] == ['foo', 'baz', 'bar']
+
+            # age >= 20
+            users = User.all(
+                session,
+                order_by='-name',
+                filter_factory=lambda s: s.where(
+                    User.age >= 20
+                )
+            )
+            assert [u.name for u in users] == ['bar']

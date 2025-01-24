@@ -152,6 +152,24 @@ class DBMixin(Generic[T]):
         return cls._all(session, statement)
 
     @classmethod
+    def all(
+        cls,
+        session: Session,
+        order_by: Optional[str] = None,
+        filter_factory: Optional[Callable] = None,
+        **kwargs
+    ) -> List[T]:
+        statement = cls._filter_by(filter_factory=filter_factory, **kwargs)
+        if order_by:
+            if order_by.startswith('-'):
+                order_by = getattr(cls, order_by[1:]).desc()
+            else:
+                order_by = getattr(cls, order_by)
+            statement = statement.order_by(order_by)
+
+        return cls._all(session, statement)
+
+    @classmethod
     def count(cls, session: Session, filter_factory: Optional[Callable] = None, **kwargs) -> int:
         statement = cls._filter_by(only_count=True, filter_factory=filter_factory, **kwargs)
         return session.exec(statement).first() or 0
