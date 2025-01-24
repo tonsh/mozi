@@ -4,7 +4,7 @@ from unittest import TestCase, mock
 
 from mozi.utils import (
     deep_update, ensure_dir, get_config, get_timestamp, hmac_sha256, is_dev, is_prod, is_test,
-    sort_list, timestamp_to_datetime, uuid
+    sort_list, timestamp_to_datetime, utc2datetime, uuid
 )
 
 
@@ -73,6 +73,10 @@ def test_timestamp_to_datetime():
     fmt = "%Y-%m-%d %H:%M:%S.%f%z"
     assert timestamp_to_datetime(1714026382901).strftime(fmt) == "2024-04-25 14:26:22.901000+0800"
     assert timestamp_to_datetime(1714026382901, timezone="Asia/Tokyo").strftime(fmt) == "2024-04-25 15:26:22.901000+0900"  # pylint: disable=line-too-long
+
+
+def test_utc2datetime():
+    assert utc2datetime("2024-04-25T06:26:22.901Z").strftime("%Y-%m-%d %H:%M:%S%z") == "2024-04-25 14:26:22+0800"  # pylint: disable=line-too-long
 
 
 def test_hmac_sha256():

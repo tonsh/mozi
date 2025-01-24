@@ -62,6 +62,11 @@ def timestamp_to_datetime(timestamp: int, timezone: str = "Asia/Shanghai") -> da
     return datetime.fromtimestamp(next_time, tz=pytz.timezone(timezone))
 
 
+def utc2datetime(utc_str: str, timezone: str = 'Asia/Shanghai') -> datetime:
+    utc_time = datetime.fromisoformat(utc_str)
+    return utc_time.astimezone(tz=pytz.timezone(timezone))
+
+
 def hmac_sha256(api_secret: str, message: str) -> str:
     m = hmac.new(api_secret.encode("utf-8"), message.encode("utf-8"), hashlib.sha256)
     return m.hexdigest()
