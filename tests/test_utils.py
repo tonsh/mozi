@@ -4,7 +4,7 @@ from unittest import TestCase, mock
 
 from mozi.utils import (
     deep_update, ensure_dir, get_config, get_timestamp, hmac_sha256, is_dev, is_prod, is_test,
-    sort_list, timestamp_to_datetime, utc2datetime, uuid
+    sort_list, timestamp_to_datetime, utc2datetime, uuid, is_debug
 )
 
 
@@ -14,6 +14,7 @@ class TestEnv(TestCase):
         assert is_test() is True
         assert is_dev() is False
         assert is_prod() is False
+        assert is_debug() is True
 
 
 class TestEnsureDir(TestCase):
