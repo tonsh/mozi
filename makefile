@@ -10,7 +10,7 @@ clean:
 	@find . -name ".pytest_cache" -exec rm -rf {} +
 
 pylint: clean
-	@pylint --rcfile=.pylintrc --recursive=y .
+	@pylint --rcfile=.pylintrc --recursive=y --disable=R0801 .
 
 flake8: clean
 	@flake8 . --count --max-complexity=10 --max-line-length=200 --ignore=F401,W504 --statistics --show-source

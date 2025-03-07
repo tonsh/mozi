@@ -24,8 +24,10 @@ dependencies = [
 packages = ["mozi"]
 
 [project.optional-dependencies]
-dev = ["pytest", "flake8", "pylint"]
+dev = ["pytest", "dotbot", "ipython", "pytest-env", "httpx"]
+lint = ["flake8", "pylint"]
 docs = ["sphinx"]
+api = ["fastapi>=0.115.11"]
 
 [project.urls]
 "Bug Tracker" = "https://github.com/tonsh/mozi/issues"

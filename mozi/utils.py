@@ -8,6 +8,7 @@ from typing import List, Optional
 import pytz
 import yaml
 
+APP_NAME = os.environ.get("APP_NAME", "mozi")
 APP_ENV = os.environ.get("APP_ENV", "dev")
 
 # custom typings
@@ -25,6 +26,10 @@ def is_dev() -> bool:
 
 def is_test() -> bool:
     return APP_ENV == "test"
+
+
+def is_debug() -> bool:
+    return is_dev() or is_test()
 
 
 def ensure_dir(directory: Path) -> Path:
