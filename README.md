@@ -12,4 +12,27 @@
 
 ```
 pip install git+https://github.com/tonsh/mozi.git@master
+
+pip install "mozi[api] @ git+https://github.com/tonsh/mozi.git@master"
+```
+
+# Project Config
+
+```python
+# .env
+APP_NAME = 'your_app_name'
+APP_DEV = 'dev|pro|test'
+```
+
+# How to use fastapi app
+Using mozi.api.app will automatically log request and error logs.
+
+```
+# main.py
+
+from mozi.api.app import app
+
+@app.get("/")
+async def hello():
+    return {"message": "Hello world"}
 ```
