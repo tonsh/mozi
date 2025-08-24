@@ -11,7 +11,8 @@
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
-		"ghcr.io/guiyomh/features/vim:0": {}
+		"ghcr.io/guiyomh/features/vim:0": {},
+		"./features/claude": {}
 	},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
@@ -26,6 +27,11 @@
 			"dotfiles.repository": "git@github.com:tonsh/dotfiles.git",
 			"dotfiles.installCommand": "install.sh",
 			"dotfiles.targetPath": "~/dotfiles"
+		},
+		"vscode": {
+			"extensions": [
+				"Anthropic.claude-code"
+			]
 		}
 	},
 
