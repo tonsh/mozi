@@ -98,7 +98,6 @@ pytest tests/test_db/test_user.py::TestUser::test_create
 继承 `BaseModel` 创建数据库模型：
 
 ```python
-from sqlmodel import Session
 from mozi.db import BaseModel
 
 class User(BaseModel, table=True):
@@ -106,10 +105,9 @@ class User(BaseModel, table=True):
     email: str
     
 # 使用
- with Session(self.engine) as session:
-    user = User.create(session, name="test", email="test@example.com")
-    users = User.all(session)
-    user_count = User.count(session, name="test")
+  user = User.create(name="test", email="test@example.com")
+  users = User.all()
+  user_count = User.count(name="test")
 ```
 
 ### FastAPI 应用使用方式

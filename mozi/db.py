@@ -1,7 +1,8 @@
 # pylint: disable=redefined-builtin
+import os
 from datetime import datetime
 from typing import Any, Callable, Generic, List, Optional, TypeVar, Union
-from sqlalchemy import Engine
+from sqlalchemy import Engine, create_engine
 from sqlmodel import SQLModel, Field, Session, func, select
 from sqlmodel.sql.expression import Select, SelectOfScalar
 
@@ -20,6 +21,21 @@ def create_tables(engine: Engine):
 def drop_tables(engine: Engine):
     """Drop all tables"""
     SQLModel.metadata.drop_all(engine)
+
+
+class PostgresEngine:
+    _engine: Optional[Engine] = None
+
+    @classmethod
+    def get(cls) -> Engine:
+        if not cls._engine:
+            return create_engine(os.getenv("POSTGRES_URL", ""))
+        return cls._engine
+
+
+def get_session() -> Session:
+    engine = PostgresEngine.get()
+    return Session(engine)
 
 
 class BaseTable(SQLModel):
@@ -78,9 +94,18 @@ class DBMixin(Generic[T]):
             raise
 
     @classmethod
+    def _get_by_id(cls, session: Session, id: int) -> Optional[T]:
+        return session.get(cls, id)  # type: ignore
+
+    @classmethod
     def _all(cls, session: Session, statement: Statement) -> List[T]:
         result = list(session.exec(statement).all())
         return result or []
+
+    @classmethod
+    def _count(cls, session: Session, filter_factory: Optional[Callable] = None, **kwargs) -> int:
+        statement = cls._filter_by(only_count=True, filter_factory=filter_factory, **kwargs)
+        return session.exec(statement).first() or 0
 
     @classmethod
     def _filter_by(
@@ -104,39 +129,47 @@ class DBMixin(Generic[T]):
 
         return statement
 
-    def update(self, session: Session, **kwargs) -> T:
+    def _update(self, session: Session, **kwargs) -> T:
         for key, val in kwargs.items():
             if hasattr(self, key):
                 setattr(self, key, val)
         return self._upsert(session)
 
-    def delete(self, session: Session):
-        return self._delete(session)
+    def update(self, **kwargs) -> T:
+        with get_session() as session:
+            return self._update(session, **kwargs)
+
+    def delete(self):
+        with get_session() as session:
+            return self._delete(session)
 
     @classmethod
-    def create(cls, session: Session, **kwargs) -> T:
-        return cls(**kwargs)._upsert(session)
+    def create(cls, **kwargs) -> T:
+        with get_session() as session:
+            return cls(**kwargs)._upsert(session)
 
     @classmethod
-    def get_by_id(cls, session: Session, id: int) -> Optional[T]:
+    def get_by_id(cls, id: int) -> Optional[T]:
         """Get a record by its ID."""
-        return session.get(cls, id)  # type: ignore
+        with get_session() as session:
+            return cls._get_by_id(session, id)
 
     @classmethod
     def get_for_update(cls, session: Session, id: int) -> Optional[T]:
         """ 使用 with_for_update 方法，可以确保在查询记录时锁定这些记录，以防止其他事务修改它们。"""
+        # 此处必须由调用者管理 session，保证事务统一提交。
         statement = cls._filter_by(id=id).with_for_update()
         return session.exec(statement).one_or_none()
 
     @classmethod
     def get(
         cls,
-        session: Session,
         filter_factory: Optional[Callable] = None,
         **kwargs
     ) -> Optional[T]:
         statement = cls._filter_by(filter_factory=filter_factory, **kwargs)
-        result = cls._all(session, statement)
+        with get_session() as session:
+            result = cls._all(session, statement)
 
         if len(result) > 1:
             raise ValueError(f'Multiple records found for {cls.__name__} with {kwargs}')
@@ -144,17 +177,17 @@ class DBMixin(Generic[T]):
         return result[0] if result else None
 
     @classmethod
-    def gets_by_ids(cls, session: Session, ids: List[int]) -> List[T]:
+    def gets_by_ids(cls, ids: List[int]) -> List[T]:
         if not ids:
             return []
 
         statement = select(cls).where(cls.id.in_(ids))  # type: ignore
-        return cls._all(session, statement)
+        with get_session() as session:
+            return cls._all(session, statement)
 
     @classmethod
     def all(
         cls,
-        session: Session,
         order_by: Optional[str] = None,
         filter_factory: Optional[Callable] = None,
         **kwargs
@@ -167,24 +200,24 @@ class DBMixin(Generic[T]):
                 order_by = getattr(cls, order_by)
             statement = statement.order_by(order_by)
 
-        return cls._all(session, statement)
+        with get_session() as session:
+            return cls._all(session, statement)
 
     @classmethod
-    def count(cls, session: Session, filter_factory: Optional[Callable] = None, **kwargs) -> int:
-        statement = cls._filter_by(only_count=True, filter_factory=filter_factory, **kwargs)
-        return session.exec(statement).first() or 0
+    def count(cls, filter_factory: Optional[Callable] = None, **kwargs) -> int:
+        with get_session() as session:
+            return cls._count(session, filter_factory=filter_factory, **kwargs)
 
     @classmethod
     def gets(
         cls,
-        session: Session,
         start: int = 0,
         limit: int = 20,
         order_by: Optional[str] = None,
         filter_factory: Optional[Callable] = None,
         **kwargs
     ) -> tuple[int, List[T]]:
-        total = cls.count(session, filter_factory=filter_factory, **kwargs)
+        total = cls.count(filter_factory=filter_factory, **kwargs)
 
         statement = cls._filter_by(filter_factory=filter_factory, **kwargs)
         if order_by:
@@ -195,8 +228,11 @@ class DBMixin(Generic[T]):
             statement = statement.order_by(order_by)
         statement = statement.offset(start).limit(limit)
 
-        return total, cls._all(session, statement)
+        with get_session() as session:
+            items = cls._all(session, statement)
+
+        return total, items
 
 
 class BaseModel(BaseTable, DBMixin):
-    pass
+    ...
