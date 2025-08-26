@@ -22,6 +22,9 @@ pip install "mozi[api] @ git+https://github.com/tonsh/mozi.git@master"
 # .env
 APP_NAME = 'your_app_name'
 APP_DEV = 'dev|pro|test'
+
+# OPtional
+POSTGRES_URL = "YOUR_POSTGRES_URL"
 ```
 
 # How to use fastapi app
