@@ -12,13 +12,13 @@ Statement = Union[Select, SelectOfScalar]
 logger = get_logger('sqlalchemy.engine')
 
 
-def create_db_and_tables(engine: Engine):
-    """Create database and tables"""
+def create_tables(engine: Engine):
+    """Create all tables"""
     SQLModel.metadata.create_all(engine)
 
 
-def drop_db_and_tables(engine: Engine):
-    """Drop database and tables"""
+def drop_tables(engine: Engine):
+    """Drop all tables"""
     SQLModel.metadata.drop_all(engine)
 
 

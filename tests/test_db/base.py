@@ -1,7 +1,7 @@
 import unittest
 from sqlmodel import create_engine
 
-from mozi.db import create_db_and_tables, drop_db_and_tables
+from mozi.db import create_tables, drop_tables
 
 
 TEST_DB_URI = "sqlite:////var/tmp/mozi-test.db"
@@ -15,12 +15,12 @@ engine = create_engine(
 class DBTestCase(unittest.TestCase):
 
     def setUp(self):
-        create_db_and_tables(engine)
+        create_tables(engine)
         self.engine = engine
 
         return super().setUp()
 
     def tearDown(self):
-        drop_db_and_tables(engine)
+        drop_tables(engine)
 
         return super().tearDown()
