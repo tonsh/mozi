@@ -1,12 +1,12 @@
+import os
 import unittest
 from sqlmodel import create_engine
 
 from mozi.db import create_tables, drop_tables
 
 
-TEST_DB_URI = "sqlite:////var/tmp/mozi-test.db"
 engine = create_engine(
-    url=TEST_DB_URI,
+    url=os.getenv("POSTGRES_URL", ""),  # 测试环境使用 sqlite 代替 postgres
     echo=False,
     pool_pre_ping=True,  # Check if the connection is alive
 )
